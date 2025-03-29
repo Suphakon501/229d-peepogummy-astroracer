@@ -10,10 +10,12 @@ public class MeteorManager : MonoBehaviour
     public float fallSpeed = 200f;
 
     private Transform player;
+
     void Start()
     {
         StartCoroutine(FindPlayerAndSpawn());
     }
+
     IEnumerator FindPlayerAndSpawn()
     {
         while (player == null)
@@ -27,6 +29,7 @@ public class MeteorManager : MonoBehaviour
 
         StartCoroutine(SpawnMeteor());
     }
+
     IEnumerator SpawnMeteor()
     {
         while (true)
@@ -35,46 +38,22 @@ public class MeteorManager : MonoBehaviour
             Spawn();
         }
     }
+
     void Spawn()
     {
         if (player == null) return;
-
 
         float randomX = player.position.x + Random.Range(-spawnRadius, spawnRadius);
         float randomZ = player.position.z + Random.Range(-spawnRadius, spawnRadius);
         Vector3 spawnPosition = new Vector3(randomX, spawnHeight, randomZ);
 
-
         GameObject meteor = Instantiate(meteorPrefab, spawnPosition, Quaternion.identity);
-        meteor.AddComponent<Meteor>(); 
-        meteor.GetComponent<Meteor>().Initialize(player.position, fallSpeed);
-    }
-}
-public class Meteor : MonoBehaviour
-{
-    private Vector3 targetPosition;
-    private float fallSpeed;
 
-    public void Initialize(Vector3 target, float speed)
-    {
-        targetPosition = target;
-        fallSpeed = speed;
-    }
-    void Update()
-    {
-        transform.position = Vector3.MoveTowards(transform.position, targetPosition, fallSpeed * Time.deltaTime);
-
-        if (transform.position.y <= 0.5f)
+        // Get the Meteor component and initialize it
+        Meteor meteorScript = meteor.GetComponent<Meteor>();
+        if (meteorScript != null)
         {
-            Destroy(gameObject);
-        }
-    }
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            other.GetComponent<SpaceCarController>()?.TakeDamage(20);
-            Destroy(gameObject);
+            meteorScript.Initialize(player.position, fallSpeed); // This should now match the Meteor.Initialize method
         }
     }
 }
